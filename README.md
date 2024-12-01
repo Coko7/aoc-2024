@@ -13,3 +13,11 @@ My code for the [Advent of Code - 2024 edition](https://adventofcode.com/2024).
 <!--- advent_readme_stars table --->
 
 <!--- benchmarking table --->
+## Benchmarks
+
+| Day | Part 1 | Part 2 |
+| :---: | :---: | :---:  |
+| [Day 1](./src/bin/01.rs) | `585.0µs` | `155.2µs` |
+
+**Total: 0.74ms**
+<!--- benchmarking table --->
