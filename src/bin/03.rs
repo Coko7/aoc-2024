@@ -1,4 +1,4 @@
-advent_of_code::solution!(3, 2);
+advent_of_code::solution!(3);
 
 pub fn part_one(input: &str) -> Option<u32> {
     // /!\ Input has been pre-processed using grep/sed /!\
@@ -6,8 +6,13 @@ pub fn part_one(input: &str) -> Option<u32> {
     // grep -o "mul([0-9]*,[0-9]*)" 03_og.txt | sed 's/mul(\(.*\))/\1/' > 03-1.txt
     let mut sum = 0;
     for line in input.lines() {
-        let res = parse_mul(line);
-        sum = sum + res;
+        match line {
+            "do()" => {}
+            "don't()" => {}
+            val => {
+                sum = sum + parse_mul(val);
+            }
+        }
     }
 
     Some(sum.try_into().unwrap())
