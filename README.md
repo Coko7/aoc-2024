@@ -21,6 +21,7 @@ My code for the [Advent of Code - 2024 edition](https://adventofcode.com/2024).
 | [Day 2](./src/bin/02.rs) | `88.1µs` | `185.3µs` |
 | [Day 3](./src/bin/03.rs) | `28.3µs` | `19.4µs` |
 | [Day 4](./src/bin/04.rs) | `2.9ms` | `335.7µs` |
+| [Day 5](./src/bin/05.rs) | `807.9µs` | `2.8ms` |
 
-**Total: 4.30ms**
+**Total: 7.90ms**
 <!--- benchmarking table --->
