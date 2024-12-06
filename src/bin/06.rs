@@ -149,60 +149,88 @@ pub fn part_two(input: &str) -> Option<u32> {
 
     let start_pos = start_pos.unwrap();
 
-    let mut candidates = Vec::new();
+    let mut facing = Direction::Up;
+    let mut current_pos = start_pos.clone();
 
-    for y in 0..height {
-        for x in 0..width {
-            let x: i32 = x.try_into().unwrap();
-            let y: i32 = y.try_into().unwrap();
+    let mut visited: Vec<Pos> = Vec::new();
+    let mut loop_candidates = Vec::new();
 
-            // let progress: f32 = (y * width as i32 + x) as f32;
-            // println!("{}%", (progress / (width * height) as f32 * 100.0));
+    loop {
+        if !visited
+            .iter()
+            .any(|p| p.x == current_pos.x && p.y == current_pos.y)
+        {
+            visited.push(current_pos.clone());
+        }
 
-            if obstacles.iter().any(|p| p.x == x && p.y == y) {
-                continue;
-            }
+        let in_front_pos = get_in_front_pos(&current_pos, &facing);
+        if out_of_bounds(&in_front_pos, width, height) {
+            break;
+        }
 
-            let mut facing = Direction::Up;
-            let mut current_pos = start_pos.clone();
+        let blocked = obstacles
+            .iter()
+            .any(|p| p.x == in_front_pos.x && p.y == in_front_pos.y);
 
-            let mut obstacles_copy = obstacles.clone();
-            obstacles_copy.push(Pos { x, y });
-
-            let mut blocked_history: Vec<(Pos, Direction)> = Vec::new();
-
-            loop {
-                let in_front_pos = get_in_front_pos(&current_pos, &facing);
-                let blocked = obstacles_copy
-                    .iter()
-                    .any(|p| p.x == in_front_pos.x && p.y == in_front_pos.y);
-
-                if blocked {
-                    // Already been blocked with same obstacle and same direction; must be in a
-                    // loop
-                    if blocked_history.iter().any(|e| {
-                        e.0.x == in_front_pos.x && e.0.y == in_front_pos.y && e.1 == facing
-                    }) {
-                        candidates.push(Pos { x, y });
-                        break;
-                    }
-
-                    blocked_history.push((in_front_pos, facing.clone()));
-                    facing = rotate_dir(&facing);
-                } else {
-                    current_pos = in_front_pos;
-                }
-
-                if out_of_bounds(&current_pos, width, height) {
-                    break;
-                }
-
-                // println!("{:?}", current_pos);
-            }
+        if blocked {
+            facing = rotate_dir(&facing);
+        } else {
+            current_pos = in_front_pos;
         }
     }
 
-    Some(candidates.len().try_into().unwrap())
+    // Try only putting obstacles on positions that we would have visited initially
+    for pos in visited.iter() {
+        let x: i32 = pos.x.try_into().unwrap();
+        let y: i32 = pos.y.try_into().unwrap();
+
+        // let progress = idx as f32 / visited.len() as f32;
+        // println!("{}%", progress * 100.0);
+
+        if obstacles.iter().any(|p| p.x == x && p.y == y) {
+            continue;
+        }
+
+        let mut facing = Direction::Up;
+        let mut current_pos = start_pos.clone();
+
+        let mut obstacles_copy = obstacles.clone();
+        obstacles_copy.push(Pos { x, y });
+
+        let mut blocked_history: Vec<(Pos, Direction)> = Vec::new();
+
+        loop {
+            let in_front_pos = get_in_front_pos(&current_pos, &facing);
+            let blocked = obstacles_copy
+                .iter()
+                .any(|p| p.x == in_front_pos.x && p.y == in_front_pos.y);
+
+            if blocked {
+                // Already been blocked with same obstacle and same direction; must be in a
+                // loop
+                if blocked_history
+                    .iter()
+                    .any(|e| e.0.x == in_front_pos.x && e.0.y == in_front_pos.y && e.1 == facing)
+                {
+                    loop_candidates.push(Pos { x, y });
+                    break;
+                }
+
+                blocked_history.push((in_front_pos, facing.clone()));
+                facing = rotate_dir(&facing);
+            } else {
+                current_pos = in_front_pos;
+            }
+
+            if out_of_bounds(&current_pos, width, height) {
+                break;
+            }
+
+            // println!("{:?}", current_pos);
+        }
+    }
+
+    Some(loop_candidates.len().try_into().unwrap())
 }
 
 #[cfg(test)]
