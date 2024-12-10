@@ -145,7 +145,6 @@ fn calculate_score(trail_head: &Pos, map: &Map) -> u32 {
         }
 
         let current = current.unwrap();
-        // println!("current: {:?}", current);
 
         if map.get_height(&current).unwrap() == 9 {
             score += 1;
@@ -154,15 +153,39 @@ fn calculate_score(trail_head: &Pos, map: &Map) -> u32 {
         visited.push(current.clone());
 
         let candidates = get_next_pos_vec(&current, &map);
-
-        // println!("candidates: {:?}", candidates);
         let valid_cands = candidates
             .iter()
             .filter(|p| !visited.iter().any(|v| v.x == p.x && v.y == p.y));
 
-        // println!("{:?}", valid_cands);
-
         for candidate in valid_cands {
+            to_visit.push(candidate.clone());
+        }
+    }
+
+    score
+}
+
+fn calculate_score2(trail_head: &Pos, map: &Map) -> u32 {
+    let mut to_visit: Vec<Pos> = Vec::new();
+
+    to_visit.push(trail_head.clone());
+
+    let mut score = 0;
+
+    loop {
+        let current = to_visit.pop();
+        if current.is_none() {
+            break;
+        }
+
+        let current = current.unwrap();
+
+        if map.get_height(&current).unwrap() == 9 {
+            score += 1;
+        }
+
+        let candidates = get_next_pos_vec(&current, &map);
+        for candidate in candidates {
             to_visit.push(candidate.clone());
         }
     }
@@ -184,7 +207,16 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let map = init_map(input);
+
+    let mut total_score = 0;
+    for trail_head in map.trail_heads.iter() {
+        let score = calculate_score2(&trail_head, &map);
+        // println!("trail {:?} has score: {}", trail_head, score);
+        total_score += score;
+    }
+
+    Some(total_score)
 }
 
 #[cfg(test)]
@@ -200,6 +232,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(81));
     }
 }
