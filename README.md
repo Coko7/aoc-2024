@@ -44,12 +44,12 @@ My code for the [Advent of Code - 2024 edition](https://adventofcode.com/2024).
 | [Day 6](./src/bin/06.rs) | `4.9ms` | `5.2s` |
 | [Day 7](./src/bin/07.rs) | `31.3ms` | `2.8s` |
 | [Day 8](./src/bin/08.rs) | `32.1µs` | `558.1µs` |
-| [Day 9](./src/bin/09.rs) | `602.3ms` | `-` |
+| [Day 9](./src/bin/09.rs) | `656.2ms` | `2.3s` |
 | [Day 10](./src/bin/10.rs) | `155.9µs` | `179.1µs` |
 | [Day 11](./src/bin/11.rs) | `839.8µs` | `-` |
 | [Day 12](./src/bin/12.rs) | `215.4ms` | `-` |
 | [Day 13](./src/bin/13.rs) | `97.4µs` | `97.8µs` |
 | [Day 14](./src/bin/14.rs) | `190.1µs` | `-` |
 
-**Total: 8863.96ms**
+**Total: 11217.86ms**
 <!--- benchmarking table --->
