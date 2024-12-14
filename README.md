@@ -47,7 +47,8 @@ My code for the [Advent of Code - 2024 edition](https://adventofcode.com/2024).
 | [Day 10](./src/bin/10.rs) | `155.9µs` | `179.1µs` |
 | [Day 11](./src/bin/11.rs) | `839.8µs` | `-` |
 | [Day 12](./src/bin/12.rs) | `215.4ms` | `-` |
-| [Day 13](./src/bin/13.rs) | `95.6µs` | `95.5µs` |
+| [Day 13](./src/bin/13.rs) | `97.4µs` | `97.8µs` |
+| [Day 14](./src/bin/14.rs) | `190.1µs` | `-` |
 
-**Total: 8863.76ms**
+**Total: 8863.96ms**
 <!--- benchmarking table --->
