@@ -46,11 +46,11 @@ My code for the [Advent of Code - 2024 edition](https://adventofcode.com/2024).
 | [Day 8](./src/bin/08.rs) | `32.1µs` | `558.1µs` |
 | [Day 9](./src/bin/09.rs) | `656.2ms` | `2.3s` |
 | [Day 10](./src/bin/10.rs) | `155.9µs` | `179.1µs` |
-| [Day 11](./src/bin/11.rs) | `839.8µs` | `-` |
+| [Day 11](./src/bin/11.rs) | `303.9µs` | `15.4ms` |
 | [Day 12](./src/bin/12.rs) | `215.4ms` | `-` |
 | [Day 13](./src/bin/13.rs) | `97.4µs` | `97.8µs` |
 | [Day 14](./src/bin/14.rs) | `190.1µs` | `-` |
 | [Day 15](./src/bin/15.rs) | `116.0µs` | `-` |
 
-**Total: 11217.97ms**
+**Total: 11232.84ms**
 <!--- benchmarking table --->
