@@ -1,3 +1,5 @@
+use advent_of_code::Pos2D;
+
 advent_of_code::solution!(12);
 
 #[derive(Clone, Debug)]
@@ -7,7 +9,7 @@ struct Farm {
 }
 
 impl Farm {
-    fn create_region(&mut self, plot: &Pos, plant_type: char) -> u32 {
+    fn create_region(&mut self, plot: &Pos2D, plant_type: char) -> u32 {
         let region = Region::new(self.serial_id, plot, plant_type);
         let region_id = region.id;
         self.regions.push(region);
@@ -16,27 +18,27 @@ impl Farm {
         region_id
     }
 
-    fn get_region(&self, plot: &Pos) -> Option<&Region> {
+    fn get_region(&self, plot: &Pos2D) -> Option<&Region> {
         self.regions.iter().find(|r| r.contains(plot))
     }
 
-    fn left_pos(&self, position: &Pos) -> Option<Pos> {
+    fn left_pos(&self, position: &Pos2D) -> Option<Pos2D> {
         if position.x == 0 {
             return None;
         }
 
-        Some(Pos {
+        Some(Pos2D {
             x: position.x - 1,
             y: position.y,
         })
     }
 
-    fn top_pos(&self, position: &Pos) -> Option<Pos> {
+    fn top_pos(&self, position: &Pos2D) -> Option<Pos2D> {
         if position.y == 0 {
             return None;
         }
 
-        Some(Pos {
+        Some(Pos2D {
             x: position.x,
             y: position.y - 1,
         })
@@ -73,12 +75,12 @@ impl Farm {
             }
 
             parent.perimeter += child_perim - 2;
-            println!("{}", parent.perimeter);
+            // println!("{}", parent.perimeter);
             self.regions.remove(child_idx);
         } else {
             let parent = self.regions.iter_mut().find(|r| r.id == parent_id).unwrap();
             parent.perimeter -= 2;
-            println!("{}", parent.perimeter);
+            // println!("{}", parent.perimeter);
         }
     }
 }
@@ -87,12 +89,12 @@ impl Farm {
 struct Region {
     id: u32,
     plant_type: char,
-    plots: Vec<Pos>,
+    plots: Vec<Pos2D>,
     perimeter: usize,
 }
 
 impl Region {
-    fn new(id: u32, plot: &Pos, plant_type: char) -> Region {
+    fn new(id: u32, plot: &Pos2D, plant_type: char) -> Region {
         Region {
             id,
             plant_type,
@@ -114,23 +116,8 @@ impl Region {
         res.try_into().unwrap()
     }
 
-    fn contains(&self, plot: &Pos) -> bool {
+    fn contains(&self, plot: &Pos2D) -> bool {
         self.plots.iter().any(|p| p.x == plot.x && p.y == plot.y)
-    }
-}
-
-#[derive(Clone, Debug)]
-struct Pos {
-    x: i32,
-    y: i32,
-}
-
-impl Pos {
-    fn new(x: usize, y: usize) -> Pos {
-        Pos {
-            x: x.try_into().unwrap(),
-            y: y.try_into().unwrap(),
-        }
     }
 }
 
@@ -142,10 +129,10 @@ pub fn part_one(input: &str) -> Option<u32> {
 
     for (y, line) in input.lines().enumerate() {
         for (x, plant_type) in line.chars().enumerate() {
-            let plot = Pos::new(x, y);
+            let plot = Pos2D::new(x as i32, y as i32);
             let new_region_id = farm.create_region(&plot, plant_type);
 
-            println!("Found `{}` at (x: {}, y: {})", plant_type, plot.x, plot.y);
+            // println!("Found `{}` at (x: {}, y: {})", plant_type, plot.x, plot.y);
 
             if let Some(left) = farm.left_pos(&plot) {
                 if let Some(left_region) = farm.get_region(&left) {

@@ -1,29 +1,9 @@
 use core::panic;
 
+use advent_of_code::Pos2D;
 use itertools::Itertools;
 
 advent_of_code::solution!(15);
-
-#[derive(Debug)]
-struct Pos {
-    x: i32,
-    y: i32,
-}
-
-impl Pos {
-    fn add_pos(&self, position: &Pos) -> Pos {
-        Pos {
-            x: self.x + position.x,
-            y: self.y + position.y,
-        }
-    }
-}
-
-impl Pos {
-    fn new(x: i32, y: i32) -> Pos {
-        Pos { x, y }
-    }
-}
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 enum TileType {
@@ -37,28 +17,28 @@ struct Map {
     width: usize,
     height: usize,
     tiles: Vec<TileType>,
-    robot_pos: Pos,
+    robot_pos: Pos2D,
 }
 
 impl Map {
-    fn pos_idx(&self, position: &Pos) -> usize {
+    fn pos_idx(&self, position: &Pos2D) -> usize {
         pos_idx(position, self.width, self.height)
     }
 
-    fn idx_xy(&self, idx: usize) -> Pos {
+    fn idx_xy(&self, idx: usize) -> Pos2D {
         let x = (idx % self.width) as i32;
         let y = (idx / self.height) as i32;
-        Pos::new(x, y)
+        Pos2D::new(x, y)
     }
 
-    fn is_valid_pos(&self, position: &Pos) -> bool {
+    fn is_valid_pos(&self, position: &Pos2D) -> bool {
         position.x >= 0
             && position.x < (self.width as i32)
             && position.y >= 0
             && position.y < (self.height as i32)
     }
 
-    fn get_boxes(&self) -> Vec<Pos> {
+    fn get_boxes(&self) -> Vec<Pos2D> {
         self.tiles
             .iter()
             .positions(|&tile| tile == TileType::Box)
@@ -66,16 +46,16 @@ impl Map {
             .collect()
     }
 
-    fn get_gps_coord(&self, position: &Pos) -> u32 {
+    fn get_gps_coord(&self, position: &Pos2D) -> u32 {
         (position.y * 100 + position.x) as u32
     }
 
-    fn get_tile(&self, position: &Pos) -> TileType {
+    fn get_tile(&self, position: &Pos2D) -> TileType {
         self.tiles[self.pos_idx(position)]
     }
 
-    fn move_box(&mut self, position: &Pos, offset: &Pos) -> bool {
-        let next_pos = position.add_pos(offset);
+    fn move_box(&mut self, position: &Pos2D, offset: &Pos2D) -> bool {
+        let next_pos = position.add(offset);
         let next_tile = self.get_tile(&next_pos);
 
         match next_tile {
@@ -97,8 +77,8 @@ impl Map {
         }
     }
 
-    fn move_robot(&mut self, offset: &Pos) {
-        let next_pos = self.robot_pos.add_pos(offset);
+    fn move_robot(&mut self, offset: &Pos2D) {
+        let next_pos = self.robot_pos.add(offset);
         if !self.is_valid_pos(&next_pos) {
             return;
         }
@@ -118,7 +98,7 @@ impl Map {
     fn display(&self) {
         for y in 0..self.height {
             for x in 0..self.width {
-                let pos = Pos::new(x as i32, y as i32);
+                let pos = Pos2D::new(x as i32, y as i32);
                 let tile = self.get_tile(&pos);
                 if self.robot_pos.x == pos.x && self.robot_pos.y == pos.y {
                     print!("@");
@@ -135,9 +115,7 @@ impl Map {
         }
         println!("");
     }
-}
 
-impl Map {
     fn from_input(input: &str) -> Map {
         let height = input.lines().count();
         let width = input.lines().last().unwrap().chars().count();
@@ -147,7 +125,7 @@ impl Map {
 
         for (y, line) in input.lines().enumerate() {
             for (x, c) in line.chars().enumerate() {
-                let position = Pos::new(x as i32, y as i32);
+                let position = Pos2D::new(x as i32, y as i32);
                 if c == '@' {
                     robot_pos = Some(position);
                 } else {
@@ -183,7 +161,7 @@ impl Map {
     }
 }
 
-fn pos_idx(position: &Pos, width: usize, height: usize) -> usize {
+fn pos_idx(position: &Pos2D, width: usize, height: usize) -> usize {
     assert!(
         position.x >= 0 && position.x < width as i32,
         "x must be within 0..{}",
@@ -198,12 +176,12 @@ fn pos_idx(position: &Pos, width: usize, height: usize) -> usize {
     (position.y as usize * height) + position.x as usize
 }
 
-fn move2pos(c: char) -> Pos {
+fn move2pos(c: char) -> Pos2D {
     match c {
-        '^' => Pos::new(0, -1),
-        '>' => Pos::new(1, 0),
-        'v' => Pos::new(0, 1),
-        '<' => Pos::new(-1, 0),
+        '^' => Pos2D::new(0, -1),
+        '>' => Pos2D::new(1, 0),
+        'v' => Pos2D::new(0, 1),
+        '<' => Pos2D::new(-1, 0),
         _ => panic!("Unknown move char: {}", c),
     }
 }
@@ -221,6 +199,14 @@ fn parse_input(input: &str) -> (Map, Vec<char>) {
 
     let map = Map::from_input(map_input);
     (map, moves)
+}
+
+fn transform_map_input(input: &str) -> String {
+    input
+        .replace("#", "##")
+        .replace("O", "[]")
+        .replace(".", "..")
+        .replace("@", "@.")
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
@@ -251,6 +237,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(9021));
     }
 }

@@ -1,21 +1,23 @@
+use advent_of_code::Pos2D;
+
 advent_of_code::solution!(10);
 
 struct Map {
     grid: Vec<Vec<u32>>,
-    trail_heads: Vec<Pos>,
+    trail_heads: Vec<Pos2D>,
     width: usize,
     height: usize,
 }
 
 impl Map {
-    fn is_valid_pos(&self, pos: &Pos) -> bool {
+    fn is_valid_pos(&self, pos: &Pos2D) -> bool {
         let width = self.width.try_into().unwrap();
         let height = self.height.try_into().unwrap();
 
         pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height
     }
 
-    fn get_height(&self, pos: &Pos) -> Option<u32> {
+    fn get_height(&self, pos: &Pos2D) -> Option<u32> {
         if self.is_valid_pos(&pos) {
             let x: usize = pos.x.try_into().unwrap();
             let y: usize = pos.y.try_into().unwrap();
@@ -25,7 +27,7 @@ impl Map {
         None
     }
 
-    fn is_move_allowed(&self, start: &Pos, end: &Pos) -> bool {
+    fn is_move_allowed(&self, start: &Pos2D, end: &Pos2D) -> bool {
         if !self.is_valid_pos(&start) || !self.is_valid_pos(&end) {
             return false;
         }
@@ -39,42 +41,6 @@ impl Map {
     }
 }
 
-#[derive(Clone, Debug)]
-struct Pos {
-    x: i32,
-    y: i32,
-}
-
-impl Pos {
-    fn right(&self, amount: i32) -> Pos {
-        Pos {
-            x: self.x + amount,
-            y: self.y,
-        }
-    }
-
-    fn left(&self, amount: i32) -> Pos {
-        Pos {
-            x: self.x - amount,
-            y: self.y,
-        }
-    }
-
-    fn top(&self, amount: i32) -> Pos {
-        Pos {
-            x: self.x,
-            y: self.y - amount,
-        }
-    }
-
-    fn bot(&self, amount: i32) -> Pos {
-        Pos {
-            x: self.x,
-            y: self.y + amount,
-        }
-    }
-}
-
 fn init_map(input: &str) -> Map {
     let mut grid = Vec::new();
     let mut trail_heads = Vec::new();
@@ -85,11 +51,11 @@ fn init_map(input: &str) -> Map {
             let height: u32 = char.to_digit(10).unwrap();
             row.push(height);
 
-            let x: i32 = x.try_into().unwrap();
-            let y: i32 = y.try_into().unwrap();
+            let x = x as i32;
+            let y = y as i32;
 
             if height == 0 {
-                trail_heads.push(Pos { x, y });
+                trail_heads.push(Pos2D::new(x, y));
             }
         }
         grid.push(row);
@@ -106,7 +72,7 @@ fn init_map(input: &str) -> Map {
     }
 }
 
-fn get_next_pos_vec(current: &Pos, map: &Map) -> Vec<Pos> {
+fn get_next_pos_vec(current: &Pos2D, map: &Map) -> Vec<Pos2D> {
     let mut res = Vec::new();
 
     let right = current.right(1);
@@ -130,9 +96,9 @@ fn get_next_pos_vec(current: &Pos, map: &Map) -> Vec<Pos> {
     res
 }
 
-fn calculate_score(trail_head: &Pos, map: &Map) -> u32 {
-    let mut to_visit: Vec<Pos> = Vec::new();
-    let mut visited: Vec<Pos> = Vec::new();
+fn calculate_score(trail_head: &Pos2D, map: &Map) -> u32 {
+    let mut to_visit: Vec<Pos2D> = Vec::new();
+    let mut visited: Vec<Pos2D> = Vec::new();
 
     to_visit.push(trail_head.clone());
 
@@ -165,8 +131,8 @@ fn calculate_score(trail_head: &Pos, map: &Map) -> u32 {
     score
 }
 
-fn calculate_score2(trail_head: &Pos, map: &Map) -> u32 {
-    let mut to_visit: Vec<Pos> = Vec::new();
+fn calculate_score2(trail_head: &Pos2D, map: &Map) -> u32 {
+    let mut to_visit: Vec<Pos2D> = Vec::new();
 
     to_visit.push(trail_head.clone());
 

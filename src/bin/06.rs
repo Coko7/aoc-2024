@@ -1,31 +1,10 @@
 use core::panic;
 
+use advent_of_code::{Direction, Pos2D};
+
 advent_of_code::solution!(6);
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-enum Direction {
-    Up,
-    Right,
-    Down,
-    Left,
-}
-
-#[derive(Clone, Debug)]
-struct Pos {
-    x: i32,
-    y: i32,
-}
-
-fn rotate_dir(facing: &Direction) -> Direction {
-    match facing {
-        Direction::Up => Direction::Right,
-        Direction::Right => Direction::Down,
-        Direction::Down => Direction::Left,
-        Direction::Left => Direction::Up,
-    }
-}
-
-fn out_of_bounds(pos: &Pos, width: usize, height: usize) -> bool {
+fn out_of_bounds(pos: &Pos2D, width: usize, height: usize) -> bool {
     if pos.x < 0 || pos.x >= width.try_into().unwrap() {
         return true;
     }
@@ -37,21 +16,21 @@ fn out_of_bounds(pos: &Pos, width: usize, height: usize) -> bool {
     false
 }
 
-fn get_in_front_pos(pos: &Pos, facing: &Direction) -> Pos {
+fn get_in_front_pos(pos: &Pos2D, facing: &Direction) -> Pos2D {
     match facing {
-        Direction::Up => Pos {
+        Direction::Up => Pos2D {
             x: pos.x,
             y: pos.y - 1,
         },
-        Direction::Right => Pos {
+        Direction::Right => Pos2D {
             x: pos.x + 1,
             y: pos.y,
         },
-        Direction::Down => Pos {
+        Direction::Down => Pos2D {
             x: pos.x,
             y: pos.y + 1,
         },
-        Direction::Left => Pos {
+        Direction::Left => Pos2D {
             x: pos.x - 1,
             y: pos.y,
         },
@@ -59,9 +38,9 @@ fn get_in_front_pos(pos: &Pos, facing: &Direction) -> Pos {
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let mut start_pos: Option<Pos> = None;
+    let mut start_pos: Option<Pos2D> = None;
 
-    let mut obstacles: Vec<Pos> = Vec::new();
+    let mut obstacles: Vec<Pos2D> = Vec::new();
 
     let height = input.lines().count();
     let width = input.lines().last().unwrap().chars().count();
@@ -73,10 +52,10 @@ pub fn part_one(input: &str) -> Option<u32> {
 
             match tile {
                 '.' => {}
-                '#' => obstacles.push(Pos { x, y }),
+                '#' => obstacles.push(Pos2D { x, y }),
                 '^' => {
                     assert!(start_pos.is_none(), "start_pos cannot be already set!");
-                    start_pos = Some(Pos { x, y })
+                    start_pos = Some(Pos2D { x, y })
                 }
                 c => panic!("Unknown character: {}", c),
             }
@@ -90,7 +69,7 @@ pub fn part_one(input: &str) -> Option<u32> {
     let mut current_pos = start_pos.clone();
     let mut facing = Direction::Up;
 
-    let mut visited: Vec<Pos> = Vec::new();
+    let mut visited: Vec<Pos2D> = Vec::new();
 
     loop {
         if !visited
@@ -110,7 +89,7 @@ pub fn part_one(input: &str) -> Option<u32> {
             .any(|p| p.x == in_front_pos.x && p.y == in_front_pos.y);
 
         if blocked {
-            facing = rotate_dir(&facing);
+            facing = Direction::rotate(&facing);
         } else {
             current_pos = in_front_pos;
         }
@@ -121,9 +100,9 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let mut start_pos: Option<Pos> = None;
+    let mut start_pos: Option<Pos2D> = None;
 
-    let mut obstacles: Vec<Pos> = Vec::new();
+    let mut obstacles: Vec<Pos2D> = Vec::new();
 
     let height = input.lines().count();
     let width = input.lines().last().unwrap().chars().count();
@@ -135,10 +114,10 @@ pub fn part_two(input: &str) -> Option<u32> {
 
             match tile {
                 '.' => {}
-                '#' => obstacles.push(Pos { x, y }),
+                '#' => obstacles.push(Pos2D { x, y }),
                 '^' => {
                     assert!(start_pos.is_none(), "start_pos cannot be already set!");
-                    start_pos = Some(Pos { x, y })
+                    start_pos = Some(Pos2D { x, y })
                 }
                 c => panic!("Unknown character: {}", c),
             }
@@ -152,7 +131,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     let mut facing = Direction::Up;
     let mut current_pos = start_pos.clone();
 
-    let mut visited: Vec<Pos> = Vec::new();
+    let mut visited: Vec<Pos2D> = Vec::new();
     let mut loop_candidates = Vec::new();
 
     loop {
@@ -173,7 +152,7 @@ pub fn part_two(input: &str) -> Option<u32> {
             .any(|p| p.x == in_front_pos.x && p.y == in_front_pos.y);
 
         if blocked {
-            facing = rotate_dir(&facing);
+            facing = Direction::rotate(&facing);
         } else {
             current_pos = in_front_pos;
         }
@@ -195,9 +174,9 @@ pub fn part_two(input: &str) -> Option<u32> {
         let mut current_pos = start_pos.clone();
 
         let mut obstacles_copy = obstacles.clone();
-        obstacles_copy.push(Pos { x, y });
+        obstacles_copy.push(Pos2D { x, y });
 
-        let mut blocked_history: Vec<(Pos, Direction)> = Vec::new();
+        let mut blocked_history: Vec<(Pos2D, Direction)> = Vec::new();
 
         loop {
             let in_front_pos = get_in_front_pos(&current_pos, &facing);
@@ -212,12 +191,12 @@ pub fn part_two(input: &str) -> Option<u32> {
                     .iter()
                     .any(|e| e.0.x == in_front_pos.x && e.0.y == in_front_pos.y && e.1 == facing)
                 {
-                    loop_candidates.push(Pos { x, y });
+                    loop_candidates.push(Pos2D::new(x, y));
                     break;
                 }
 
                 blocked_history.push((in_front_pos, facing.clone()));
-                facing = rotate_dir(&facing);
+                facing = Direction::rotate(&facing);
             } else {
                 current_pos = in_front_pos;
             }
