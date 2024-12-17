@@ -198,16 +198,17 @@ fn solve_self_replication(computer: &mut Computer) -> u64 {
 
 fn find_a_for_iteration(last_a: u64, iteration: usize, computer: &mut Computer) -> Option<u64> {
     let min = last_a * 8;
-    let max = min + 64;
+    let max = min + 64; // 64 is kinda of a magic value, there is probably a way cleaner way to
+                        // find the max but this works for now.
 
-    'outer: for number in min..(max + 1) {
+    for number in min..max {
         computer.reset();
         computer.a_reg = number;
         computer.run_until_end();
 
         let sub_std_in = computer.std_in[computer.program_len() - iteration - 1..].to_vec();
         if computer.std_out != sub_std_in {
-            continue 'outer;
+            continue;
         }
 
         return Some(number);
