@@ -1,13 +1,14 @@
 use core::panic;
+use std::usize;
 
 advent_of_code::solution!(17);
 
 #[derive(Debug)]
 struct Computer {
     // A,B,C registers
-    a_reg: u32,
-    b_reg: u32,
-    c_reg: u32,
+    a_reg: u64,
+    b_reg: u64,
+    c_reg: u64,
     // Program Counter
     pc: usize,
     std_in: Vec<u8>,
@@ -42,12 +43,24 @@ impl Computer {
         }
     }
 
-    fn parse_reg_def(input: &str, prefix: &str) -> u32 {
+    fn program_len(&self) -> usize {
+        self.std_in.len()
+    }
+
+    fn reset(&mut self) {
+        self.a_reg = 0;
+        self.b_reg = 0;
+        self.c_reg = 0;
+        self.pc = 0;
+        self.std_out = Vec::new();
+    }
+
+    fn parse_reg_def(input: &str, prefix: &str) -> u64 {
         input
             .strip_prefix(prefix)
             .unwrap()
             .trim()
-            .parse::<u32>()
+            .parse::<u64>()
             .unwrap()
     }
 
@@ -61,13 +74,13 @@ impl Computer {
             .collect()
     }
 
-    fn process_operand(&self, operand: u8, is_combo: bool) -> u32 {
+    fn process_operand(&self, operand: u8, is_combo: bool) -> u64 {
         assert!(operand < 8, "Operand is not 3-bit: {}", operand);
 
         match is_combo {
-            false => operand as u32,
+            false => operand as u64,
             true => match operand {
-                0..=3 => operand as u32,
+                0..=3 => operand as u64,
                 4 => self.a_reg,
                 5 => self.b_reg,
                 6 => self.c_reg,
@@ -78,26 +91,35 @@ impl Computer {
     }
 
     fn out(&self) -> String {
-        let out_nums: Vec<String> = self.std_out.iter().map(|n| n.to_string()).collect();
-        out_nums.join(",")
+        join_u8_vec(&self.std_out)
     }
 
-    fn run(&mut self) {
+    fn run_until_end(&mut self) {
         while self.pc < self.std_in.len() {
-            let cur_pc = self.pc;
-            self.pc += 2;
-
-            let op_code = self.std_in[cur_pc];
-            let instruction = Instr::from_opcode(op_code);
-            let operand = self.std_in[cur_pc + 1];
-
-            self.execute_instruction(instruction, operand);
+            self.run_one_cycle();
         }
+    }
+
+    fn run_one_cycle(&mut self) {
+        let cur_pc = self.pc;
+        self.pc += 2;
+
+        let op_code = self.std_in[cur_pc];
+        let instruction = Instr::from_opcode(op_code);
+        let operand = self.std_in[cur_pc + 1];
+
+        // if instruction == Instr::JNZ {
+        //     println!("A: {}", self.a_reg);
+        //     println!("A8: {}", self.a_reg % 8);
+        // }
+
+        self.execute_instruction(instruction, operand);
+        // println!("{}{} => {:?}", op_code, operand, self);
     }
 
     fn execute_instruction(&mut self, instruction: Instr, operand: u8) {
         match instruction {
-            Instr::ADV => self.a_reg /= 2_u32.pow(self.process_operand(operand, true)),
+            Instr::ADV => self.a_reg /= 2_u64.pow(self.process_operand(operand, true) as u32),
             Instr::BXL => self.b_reg ^= self.process_operand(operand, false),
             Instr::BST => self.b_reg = self.process_operand(operand, true) % 8,
             Instr::JNZ => {
@@ -109,12 +131,22 @@ impl Computer {
             Instr::OUT => self
                 .std_out
                 .push((self.process_operand(operand, true) % 8) as u8),
-            Instr::BDV => self.b_reg = self.a_reg / 2_u32.pow(self.process_operand(operand, true)),
-            Instr::CDV => self.c_reg = self.a_reg / 2_u32.pow(self.process_operand(operand, true)),
+            Instr::BDV => {
+                self.b_reg = self.a_reg / 2_u64.pow(self.process_operand(operand, true) as u32)
+            }
+            Instr::CDV => {
+                self.c_reg = self.a_reg / 2_u64.pow(self.process_operand(operand, true) as u32)
+            }
         }
     }
 }
 
+fn join_u8_vec(vec: &Vec<u8>) -> String {
+    let str_nums: Vec<String> = vec.iter().map(|n| n.to_string()).collect();
+    str_nums.join(",")
+}
+
+#[derive(PartialEq, Eq)]
 enum Instr {
     ADV = 0,
     BXL = 1,
@@ -127,6 +159,19 @@ enum Instr {
 }
 
 impl Instr {
+    fn to_opcode(&self) -> u8 {
+        match self {
+            Instr::ADV => 0,
+            Instr::BXL => 1,
+            Instr::BST => 2,
+            Instr::JNZ => 3,
+            Instr::BXC => 4,
+            Instr::OUT => 5,
+            Instr::BDV => 6,
+            Instr::CDV => 7,
+        }
+    }
+
     fn from_opcode(code: u8) -> Instr {
         assert!(code < 8, "OP_CODE should be 3-bit: {}", code);
         match code {
@@ -143,14 +188,43 @@ impl Instr {
     }
 }
 
+fn solve_self_replication(computer: &mut Computer) -> u64 {
+    let mut a_reg = 0;
+    for i in 0..computer.program_len() {
+        a_reg = find_a_for_iteration(a_reg, i, computer).unwrap();
+    }
+    a_reg
+}
+
+fn find_a_for_iteration(last_a: u64, iteration: usize, computer: &mut Computer) -> Option<u64> {
+    let min = last_a * 8;
+    let max = min + 64;
+
+    'outer: for number in min..(max + 1) {
+        computer.reset();
+        computer.a_reg = number;
+        computer.run_until_end();
+
+        let sub_std_in = computer.std_in[computer.program_len() - iteration - 1..].to_vec();
+        if computer.std_out != sub_std_in {
+            continue 'outer;
+        }
+
+        return Some(number);
+    }
+
+    None
+}
+
 pub fn part_one(input: &str) -> Option<String> {
     let mut computer = Computer::from_input(input);
-    computer.run();
+    computer.run_until_end();
     Some(computer.out())
 }
 
-pub fn part_two(input: &str) -> Option<String> {
-    None
+pub fn part_two(input: &str) -> Option<u64> {
+    let mut computer = Computer::from_input(input);
+    Some(solve_self_replication(&mut computer))
 }
 
 #[cfg(test)]
@@ -159,13 +233,17 @@ mod tests {
 
     #[test]
     fn test_part_one() {
-        let result = part_one(&advent_of_code::template::read_file("examples", DAY));
+        let result = part_one(&advent_of_code::template::read_file_part(
+            "examples", DAY, 1,
+        ));
         assert_eq!(result, Some("4,6,3,5,6,3,5,2,1,0".to_string()));
     }
 
     #[test]
     fn test_part_two() {
-        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        let result = part_two(&advent_of_code::template::read_file_part(
+            "examples", DAY, 2,
+        ));
+        assert_eq!(result, Some(117440));
     }
 }
