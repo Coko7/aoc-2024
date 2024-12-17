@@ -30,6 +30,7 @@ My code for the [Advent of Code - 2024 edition](https://adventofcode.com/2024).
 | [Day 13](https://adventofcode.com/2024/day/13) | ⭐ | ⭐ |
 | [Day 14](https://adventofcode.com/2024/day/14) | ⭐ | ⭐ |
 | [Day 15](https://adventofcode.com/2024/day/15) | ⭐ |   |
+| [Day 17](https://adventofcode.com/2024/day/17) | ⭐ |   |
 <!--- advent_readme_stars table --->
 
 <!--- benchmarking table --->
