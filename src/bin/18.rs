@@ -162,12 +162,7 @@ fn a_star(map: &Map) -> Result<Vec<Node>, ()> {
             return Ok(reconstruct_path(&came_from, current));
         }
 
-        // Remove current from openSet
-        open_set = open_set
-            .iter()
-            .filter(|&n| *n != current)
-            .cloned()
-            .collect();
+        open_set.retain(|&n| n != current);
 
         let neighbors = map.get_neighbors(current);
 
@@ -222,7 +217,9 @@ pub fn part_two(input: &str) -> Option<String> {
     for i in 0..=max_bytes {
         let map = create_map(&input, width, height, i);
         match a_star(&map) {
-            Ok(_) => {}
+            Ok(shortest_path) => {
+                // map.display_path(&shortest_path);
+            }
             _err => match input.lines().nth(i - 1).map(|l| parse_coords(l)) {
                 Some(pos) => return Some(format!("{},{}", pos.x, pos.y)),
                 None => panic!("parse_coords should always work here!"),
