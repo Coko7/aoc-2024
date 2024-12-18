@@ -153,12 +153,7 @@ pub fn part_one(input: &str) -> Option<u32> {
         }
     }
 
-    let mut total = 0;
-    for region in farm.regions {
-        total += region.get_fence_price();
-    }
-
-    Some(total)
+    Some(farm.regions.iter().map(|r| r.get_fence_price()).sum())
 }
 
 pub fn part_two(input: &str) -> Option<u32> {

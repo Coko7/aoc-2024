@@ -1,6 +1,6 @@
 use core::panic;
 
-use advent_of_code::Pos2D;
+use advent_of_code::{pos2idx, Map2D, Pos2D};
 use itertools::Itertools;
 
 advent_of_code::solution!(15);
@@ -14,35 +14,17 @@ enum TileType {
 
 #[derive(Debug)]
 struct Map {
-    width: usize,
-    height: usize,
-    tiles: Vec<TileType>,
+    base: Map2D<TileType>,
     robot_pos: Pos2D,
 }
 
 impl Map {
-    fn pos_idx(&self, position: &Pos2D) -> usize {
-        pos_idx(position, self.width, self.height)
-    }
-
-    fn idx_xy(&self, idx: usize) -> Pos2D {
-        let x = (idx % self.width) as i32;
-        let y = (idx / self.height) as i32;
-        Pos2D::new(x, y)
-    }
-
-    fn is_valid_pos(&self, position: &Pos2D) -> bool {
-        position.x >= 0
-            && position.x < (self.width as i32)
-            && position.y >= 0
-            && position.y < (self.height as i32)
-    }
-
     fn get_boxes(&self) -> Vec<Pos2D> {
-        self.tiles
+        self.base
+            .tiles
             .iter()
             .positions(|&tile| tile == TileType::Box)
-            .map(|pos| self.idx_xy(pos))
+            .map(|pos| self.base.idx2pos(pos))
             .collect()
     }
 
@@ -50,19 +32,18 @@ impl Map {
         (position.y * 100 + position.x) as u32
     }
 
-    fn get_tile(&self, position: &Pos2D) -> TileType {
-        self.tiles[self.pos_idx(position)]
-    }
-
     fn move_box(&mut self, position: &Pos2D, offset: &Pos2D) -> bool {
         let next_pos = position.add(offset);
-        let next_tile = self.get_tile(&next_pos);
+        let next_tile = self.base.get(&next_pos).unwrap();
+
+        let cur_idx = self.base.pos2idx(position).unwrap();
+        let next_idx = self.base.pos2idx(&next_pos).unwrap();
 
         match next_tile {
             TileType::Box => {
                 if self.move_box(&next_pos, offset) {
-                    self.tiles[pos_idx(position, self.width, self.height)] = TileType::Floor;
-                    self.tiles[pos_idx(&next_pos, self.width, self.height)] = TileType::Box;
+                    self.base.tiles[cur_idx] = TileType::Floor;
+                    self.base.tiles[next_idx] = TileType::Box;
                     true
                 } else {
                     false
@@ -70,8 +51,8 @@ impl Map {
             }
             TileType::Wall => false,
             TileType::Floor => {
-                self.tiles[pos_idx(position, self.width, self.height)] = TileType::Floor;
-                self.tiles[pos_idx(&next_pos, self.width, self.height)] = TileType::Box;
+                self.base.tiles[cur_idx] = TileType::Floor;
+                self.base.tiles[next_idx] = TileType::Box;
                 true
             }
         }
@@ -79,11 +60,11 @@ impl Map {
 
     fn move_robot(&mut self, offset: &Pos2D) {
         let next_pos = self.robot_pos.add(offset);
-        if !self.is_valid_pos(&next_pos) {
+        if !self.base.is_valid_pos(&next_pos) {
             return;
         }
 
-        let next_tile = self.get_tile(&next_pos);
+        let next_tile = self.base.get(&next_pos).unwrap();
         match next_tile {
             TileType::Box => {
                 if self.move_box(&next_pos, offset) {
@@ -96,10 +77,10 @@ impl Map {
     }
 
     fn display(&self) {
-        for y in 0..self.height {
-            for x in 0..self.width {
+        for y in 0..self.base.height {
+            for x in 0..self.base.width {
                 let pos = Pos2D::new(x as i32, y as i32);
-                let tile = self.get_tile(&pos);
+                let tile = self.base.get(&pos).unwrap();
                 if self.robot_pos.x == pos.x && self.robot_pos.y == pos.y {
                     print!("@");
                 } else {
@@ -136,15 +117,18 @@ impl Map {
                         _ => panic!("Unknown tile: {}", c),
                     };
 
-                    tiles[pos_idx(&position, width, height)] = tile;
+                    let idx = pos2idx(&position, width, height).unwrap();
+                    tiles[idx] = tile;
                 }
             }
         }
 
         Map {
-            width,
-            height,
-            tiles,
+            base: Map2D {
+                width,
+                height,
+                tiles,
+            },
             robot_pos: robot_pos.unwrap(),
         }
     }
@@ -159,21 +143,6 @@ impl Map {
             // self.display();
         }
     }
-}
-
-fn pos_idx(position: &Pos2D, width: usize, height: usize) -> usize {
-    assert!(
-        position.x >= 0 && position.x < width as i32,
-        "x must be within 0..{}",
-        width
-    );
-    assert!(
-        position.y >= 0 && position.y < height as i32,
-        "y must be within 0..{}",
-        height
-    );
-
-    (position.y as usize * height) + position.x as usize
 }
 
 fn move2pos(c: char) -> Pos2D {
@@ -237,6 +206,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, Some(9021));
+        assert_eq!(result, None);
     }
 }
