@@ -29,6 +29,25 @@ impl Pos2D {
         Pos2D::new(self.x, self.y + offset)
     }
 
+    pub fn neighbors(&self, include_corners: bool) -> Vec<Pos2D> {
+        let mut neighbors = vec![];
+        for y in self.y - 1..=self.y + 1 {
+            for x in self.x - 1..=self.x + 1 {
+                if !include_corners && y != self.y && x != self.x {
+                    continue;
+                }
+
+                // skip self
+                if x == self.x && y == self.y {
+                    continue;
+                }
+
+                neighbors.push(Pos2D::new(x, y));
+            }
+        }
+        neighbors
+    }
+
     pub fn dist(&self, other: &Pos2D) -> f64 {
         let xd = (other.x - self.x).pow(2) as f64;
         let yd = (other.y - self.y).pow(2) as f64;
