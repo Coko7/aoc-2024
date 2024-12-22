@@ -35,6 +35,8 @@ My code for the [Advent of Code - 2024 edition](https://adventofcode.com/2024).
 | [Day 18](https://adventofcode.com/2024/day/18) | ⭐ | ⭐ |
 | [Day 19](https://adventofcode.com/2024/day/19) | ⭐ |    |
 | [Day 20](https://adventofcode.com/2024/day/20) | ⭐ |    |
+| Day 21                                         |    |    |
+| [Day 22](https://adventofcode.com/2024/day/22) | ⭐ |    |
 <!--- advent_readme_stars table --->
 
 <!--- benchmarking table --->
@@ -60,6 +62,7 @@ My code for the [Advent of Code - 2024 edition](https://adventofcode.com/2024).
 | [Day 17](./src/bin/17.rs) | `466.0ns` | `21.8µs` |
 | [Day 18](./src/bin/18.rs) | `636.4µs` | `1.5s` |
 | [Day 19](./src/bin/19.rs) | `21.9ms` | `-` |
+| [Day 22](./src/bin/22.rs) | `6.5ms` | `-` |
 
-**Total: 12755.39ms**
+**Total: 12761.89ms**
 <!--- benchmarking table --->
