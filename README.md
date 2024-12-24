@@ -65,6 +65,7 @@ My code for the [Advent of Code - 2024 edition](https://adventofcode.com/2024).
 | [Day 19](./src/bin/19.rs) | `21.9ms` | `-` |
 | [Day 22](./src/bin/22.rs) | `6.5ms` | `-` |
 | [Day 23](./src/bin/23.rs) | `21.1ms` | `167.2ms` |
+| [Day 24](./src/bin/24.rs) | `84.7µs` | `-` |
 
-**Total: 12950.19ms**
+**Total: 12950.28ms**
 <!--- benchmarking table --->
