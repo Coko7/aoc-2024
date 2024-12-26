@@ -30,7 +30,7 @@ My code for the [Advent of Code - 2024 edition](https://adventofcode.com/2024).
 | [Day 13](https://adventofcode.com/2024/day/13) | ⭐ | ⭐ |
 | [Day 14](https://adventofcode.com/2024/day/14) | ⭐ | ⭐ |
 | [Day 15](https://adventofcode.com/2024/day/15) | ⭐ |    |
-| Day 16                                         |    |    |
+| [Day 16](https://adventofcode.com/2024/day/16) | ⭐ |    |
 | [Day 17](https://adventofcode.com/2024/day/17) | ⭐ | ⭐ |
 | [Day 18](https://adventofcode.com/2024/day/18) | ⭐ | ⭐ |
 | [Day 19](https://adventofcode.com/2024/day/19) | ⭐ |    |
@@ -38,6 +38,8 @@ My code for the [Advent of Code - 2024 edition](https://adventofcode.com/2024).
 | Day 21                                         |    |    |
 | [Day 22](https://adventofcode.com/2024/day/22) | ⭐ |    |
 | [Day 23](https://adventofcode.com/2024/day/23) | ⭐ | ⭐ |
+| [Day 24](https://adventofcode.com/2024/day/24) | ⭐ |    |
+| [Day 25](https://adventofcode.com/2024/day/25) | ⭐ |    |
 <!--- advent_readme_stars table --->
 
 <!--- benchmarking table --->
@@ -66,6 +68,7 @@ My code for the [Advent of Code - 2024 edition](https://adventofcode.com/2024).
 | [Day 22](./src/bin/22.rs) | `6.5ms` | `-` |
 | [Day 23](./src/bin/23.rs) | `21.1ms` | `167.2ms` |
 | [Day 24](./src/bin/24.rs) | `84.7µs` | `-` |
+| [Day 25](./src/bin/25.rs) | `2.3ms` | `-` |
 
-**Total: 12950.28ms**
+**Total: 12952.58ms**
 <!--- benchmarking table --->
